@@ -24,8 +24,7 @@ async def spreadsheets_create(wrapper_services: Aiogoogle) -> str:
     response = await wrapper_services.as_service_account(
         service.spreadsheets.create(json=spreadsheet_body)
     )
-    spreadsheetid = response['spreadsheetId']
-    return spreadsheetid
+    return response['spreadsheetId']
 
 
 async def set_user_permissions(
@@ -58,12 +57,9 @@ async def spreadsheets_update_value(
     ]
     if time_projects:
         for project in time_projects:
-            new_row = [
-                project[1].name,
-                project[0],
-                project[1].description
-            ]
-            table_values.append(new_row)
+            table_values.append(
+                [project[1].name, project[0], project[1].description]
+            )
     else:
         table_values.append(['Нет информации о закрытых проектах'])
 
