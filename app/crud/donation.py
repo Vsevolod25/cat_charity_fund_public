@@ -12,6 +12,7 @@ class CRUDDonation(CRUDBase):
             user_id: int,
             session: AsyncSession,
     ) -> list[Donation]:
+        """Получение списка пожертвований пользователя."""
         attr = getattr(self.model, 'user_id')
         db_obj = await session.execute(
             select(Donation).where(attr == user_id)

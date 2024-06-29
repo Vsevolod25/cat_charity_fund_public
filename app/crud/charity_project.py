@@ -12,6 +12,7 @@ class CRUDCharityProject(CRUDBase):
             name: str,
             session: AsyncSession
     ) -> list[CharityProject]:
+        """Получение проекта по названию."""
         attr = getattr(self.model, 'name')
         db_obj = await session.execute(
             select(CharityProject).where(attr == name)
