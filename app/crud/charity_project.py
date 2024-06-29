@@ -13,9 +13,9 @@ class CRUDCharityProject(CRUDBase):
             session: AsyncSession
     ) -> list[CharityProject]:
         """Получение проекта по названию."""
-        attr = getattr(self.model, 'name')
+        name_arg = self.model.name
         db_obj = await session.execute(
-            select(CharityProject).where(attr == name)
+            select(CharityProject).where(name_arg == name)
         )
         return db_obj.scalars().all()
 
@@ -27,9 +27,9 @@ class CRUDCharityProject(CRUDBase):
         Получение всех закрытых проектов
         и сортировка по скорости завершения сбора.
         """
-        attr = getattr(self.model, 'fully_invested')
+        fully_invested_arg = self.model.fully_invested
         charityprojects = await session.execute(
-            select(self.model).where(attr == 1)
+            select(self.model).where(fully_invested_arg == 1)
         )
         charityprojects = charityprojects.scalars().all()
         time_projects = []

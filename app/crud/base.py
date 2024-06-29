@@ -80,8 +80,8 @@ class CRUDBase:
         """
         Получение объектов без статуса 'fully_invested'
         """
-        attr = getattr(self.model, 'fully_invested')
+        fully_invested_arg = self.model.fully_invested
         db_obj = await session.execute(
-            select(self.model).where(attr == 0)
+            select(self.model).where(fully_invested_arg == 0)
         )
         return db_obj.scalars().all()
