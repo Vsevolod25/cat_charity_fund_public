@@ -1,8 +1,10 @@
 from datetime import datetime
+from typing import Tuple
 
 from aiogoogle import Aiogoogle
 
 from app.core.config import settings
+from app.models import CharityProject
 
 FORMAT = "%Y/%m/%d %H:%M:%S"
 
@@ -11,13 +13,13 @@ async def spreadsheets_create(wrapper_services: Aiogoogle) -> str:
     now_date_time = datetime.now().strftime(FORMAT)
     service = await wrapper_services.discover('sheets', 'v4')
     spreadsheet_body = {
-        'properties': {'title': f'Отчёт на {now_date_time}',
+        'properties': {'title': f'Отчёт от {now_date_time}',
                        'locale': 'ru_RU'},
         'sheets': [{'properties': {'sheetType': 'GRID',
                                    'sheetId': 0,
                                    'title': 'Лист1',
                                    'gridProperties': {'rowCount': 100,
-                                                      'columnCount': 11}}}]
+                                                      'columnCount': 5}}}]
     }
     response = await wrapper_services.as_service_account(
         service.spreadsheets.create(json=spreadsheet_body)
@@ -44,28 +46,35 @@ async def set_user_permissions(
 
 async def spreadsheets_update_value(
         spreadsheetid: str,
-        reservations: list,
+        time_projects: list[Tuple[int, CharityProject]],
         wrapper_services: Aiogoogle
 ) -> None:
     now_date_time = datetime.now().strftime(FORMAT)
     service = await wrapper_services.discover('sheets', 'v4')
     table_values = [
         ['Отчёт от', now_date_time],
-        ['Количество регистраций переговорок'],
-        ['ID переговорки', 'Кол-во бронирований']
+        ['Топ проектов по скорости закрытия'],
+        ['Название проекта', 'Время сбора', 'Описание']
     ]
-    for res in reservations:
-        new_row = [str(res['meetingroom_id']), str(res['count'])]
-        table_values.append(new_row)
+    if time_projects:
+        for project in time_projects:
+            new_row = [
+                project[1].name,
+                project[0],
+                project[1].description
+            ]
+            table_values.append(new_row)
+    else:
+        table_values.append(['Нет информации о закрытых проектах'])
 
     update_body = {
         'majorDimension': 'ROWS',
         'values': table_values
     }
-    response = await wrapper_services.as_service_account(
+    await wrapper_services.as_service_account(
         service.spreadsheets.values.update(
             spreadsheetId=spreadsheetid,
-            range='A1:E30',
+            range='A1:C100',
             valueInputOption='USER_ENTERED',
             json=update_body
         )
