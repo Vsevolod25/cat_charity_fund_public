@@ -1,5 +1,5 @@
 from aiogoogle import Aiogoogle
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_async_session
@@ -34,6 +34,6 @@ async def get_report(
         await spreadsheets_update_value(
             spreadsheet_id, time_projects, wrapper_services
         )
-    except ValueError as error:
-        return {'ValueError': error.args[0]}
-    return {'URL': spreadsheet_url[:-5]}
+    except HTTPException as error:
+        return {error.status_code: error.detail}
+    return {'URL': spreadsheet_url}

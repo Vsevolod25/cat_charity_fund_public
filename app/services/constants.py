@@ -1,6 +1,7 @@
 from app.core.config import settings
 
 BASE_TABLE_VALUES = [
+    ['Отчёт'],
     ['Топ проектов по скорости закрытия'],
     ['Название проекта', 'Время сбора', 'Описание']
 ]
@@ -18,15 +19,20 @@ PERMISSIONS_BODY = {
 ROW_COUNT = 100
 COLUMN_COUNT = 5
 
-SHEETS = [
-    {
-        'properties': {
+SPREADSHEET_BODY = {
+    'properties': {
+        'title': 'Отчёт',
+        'locale': LOCALE
+    },
+    'sheets': [
+        {'properties': {
             'sheetType': 'GRID',
             'sheetId': 0,
             'title': 'Отчет по проинвестированным проектам',
             'gridProperties': {
-                'rowCount': ROW_COUNT, 'columnCount': COLUMN_COUNT
+                'rowCount': ROW_COUNT,
+                'columnCount': COLUMN_COUNT
             }
-        }
-    }
-]
+        }}
+    ]
+}
