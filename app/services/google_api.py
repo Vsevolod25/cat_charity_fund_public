@@ -20,7 +20,7 @@ async def spreadsheets_create(wrapper_services: Aiogoogle) -> Tuple[str]:
     now_date_time = datetime.now().strftime(DATETIME_FORMAT)
     service = await wrapper_services.discover('sheets', 'v4')
     spreadsheet_body = SPREADSHEET_BODY
-    spreadsheet_body['properties']['title'] = now_date_time
+    spreadsheet_body['properties']['title'] = f'Отчёт от {now_date_time}'
     response = await wrapper_services.as_service_account(
         service.spreadsheets.create(json=spreadsheet_body)
     )
