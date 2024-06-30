@@ -1,9 +1,7 @@
 from datetime import datetime
-from http import HTTPStatus
 from typing import Tuple, Union
 
 from aiogoogle import Aiogoogle
-from fastapi import HTTPException
 
 from app.models import CharityProject
 from .constants import (
@@ -48,6 +46,9 @@ async def spreadsheets_update_value(
     now_date_time = datetime.now().strftime(DATETIME_FORMAT)
     service = await wrapper_services.discover('sheets', 'v4')
     table_values = BASE_TABLE_VALUES
+    # Переменную table_values нужно объявить,
+    # чтобы добавить дату и время отчета, не меняя саму константу
+    # (как и в строках 22-23)
     table_values[0] = ['Отчёт от', now_date_time]
     if time_projects:
         for project in time_projects:
@@ -55,17 +56,16 @@ async def spreadsheets_update_value(
                 [project[1].name, project[0], project[1].description]
             )
     else:
-        table_values.append(['Нет информации о закрытых проектах'])
+        table_values[1] = ['Нет информации о закрытых проектах']
+        table_values.pop(2)
 
-    if len(table_values) > ROW_COUNT or COLUMN_COUNT < len(table_values[-1]):
-        raise HTTPException(
-            status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
-            detail=(
-                'Таблица недостаточного размера для отображения проектов. '
-                f'Таблица: {ROW_COUNT} строк, {COLUMN_COUNT} столбцов. '
-                f'Полученные данные: {len(table_values)} строк, '
-                f'{len(table_values[-1])} столбцов'
-            )
+    table_rows = len(table_values)
+    table_columns = len(table_values[-1])
+    if table_rows > ROW_COUNT or table_columns > COLUMN_COUNT:
+        raise ValueError(
+            'Таблица недостаточного размера для отображения проектов. '
+            f'Таблица: {ROW_COUNT} строк, {COLUMN_COUNT} столбцов. '
+            f'Полученные данные: {table_rows} строк, {table_columns} столбцов'
         )
 
     update_body = {
